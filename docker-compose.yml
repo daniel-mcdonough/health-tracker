@@ -1,0 +1,45 @@
+# Docker Compose for local development and testing
+# Copy .env.example to .env and configure before running
+
+services:
+  health-tracker-backend-service:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DB_PATH=/app/data/health_tracker.db
+      # Configure these in your .env file or override here
+      # Generate password hash with: cd server && npm run generate-password
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - AUTH_USERNAME=${AUTH_USERNAME:-user}
+      - AUTH_PASSWORD_HASH=${AUTH_PASSWORD_HASH}
+      - AUTH_EMAIL=${AUTH_EMAIL:-user@example.com}
+      - AUTH_DISPLAY_NAME=${AUTH_DISPLAY_NAME:-User}
+    volumes:
+      - backend_data:/app/data
+    networks:
+      - health-tracker-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - health-tracker-backend-service
+    networks:
+      - health-tracker-network
+    restart: unless-stopped
+
+volumes:
+  backend_data:
+
+networks:
+  health-tracker-network:
+    driver: bridge

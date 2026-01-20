@@ -1,0 +1,30 @@
+# # Longhorn StorageClass (usually pre-installed in cluster)
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: longhorn-health-tracker
+# provisioner: driver.longhorn.io
+# allowVolumeExpansion: true
+# reclaimPolicy: Retain
+# volumeBindingMode: Immediate
+# parameters:
+#   numberOfReplicas: "3"
+#   staleReplicaTimeout: "2880"
+#   fromBackup: ""
+
+# ---
+# PersistentVolumeClaim for SQLite database
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: health-tracker-pvc
+  namespace: health-tracker
+  labels:
+    app: health-tracker-backend
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn-health-tracker
+  resources:
+    requests:
+      storage: 2Gi

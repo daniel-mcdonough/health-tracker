@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: health-tracker-backend
+  namespace: health-tracker
+  labels:
+    app: health-tracker-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: health-tracker-backend
+  template:
+    metadata:
+      labels:
+        app: health-tracker-backend
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: backend
+        image: danielmcdonough/docker.io/danielmcdonough/health-tracker-backend:20250807-232047
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3001
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3001"
+        - name: DB_PATH
+          value: "/app/data/health_tracker.db"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: health-tracker-secrets
+              key: jwt-secret
+        - name: AUTH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: health-tracker-secrets
+              key: auth-username
+        - name: AUTH_PASSWORD_HASH
+          valueFrom:
+            secretKeyRef:
+              name: health-tracker-secrets
+              key: auth-password-hash
+        - name: AUTH_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: health-tracker-secrets
+              key: auth-email
+        - name: AUTH_DISPLAY_NAME
+          valueFrom:
+            secretKeyRef:
+              name: health-tracker-secrets
+              key: auth-display-name
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: health-tracker-pvc
