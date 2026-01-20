@@ -104,7 +104,7 @@ const Dashboard = () => {
 
   const fetchOverallStats = async () => {
     try {
-      const response = await authenticatedFetch('/api/settings/data/stats')
+      const response = await authenticatedFetch('/api/data/stats')
       const data = await response.json()
       
       if (data.success) {
