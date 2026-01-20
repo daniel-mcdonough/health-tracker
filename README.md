@@ -2,6 +2,16 @@
 
 A web application for tracking daily symptoms and food intake to identify correlations between diet and medical issues.
 
+## Screenshots
+
+| Dashboard | Symptom Tracking |
+|-----------|------------------|
+| ![Dashboard](img/dashboard.png) | ![Symptoms](img/symptoms.png) |
+
+| Food Log & Recipes | Bowel Movement Tracking |
+|--------------------|-------------------------|
+| ![Food Tracker](img/food-tracker.png) | ![Bowel Movement](img/bowel-movement.png) |
+
 ## Quick Start
 
 1. Install dependencies:
